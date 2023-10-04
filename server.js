@@ -3,6 +3,14 @@ const ejs = require('ejs');
 const mysql = require('mysql2/promise'); // Use promise-based MySQL
 const session = require('express-session');
 
+// Create a MySQL pool for database connections
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'jobPortal',
+});
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -18,14 +26,6 @@ app.use(session({
   saveUninitialized: true, // Save new sessions
 }));
 
-// Create a MySQL pool for database connections
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'jobPortal',
-});
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('videos'));
 
@@ -35,11 +35,30 @@ app.get('/home', (req, res) => {
 
 // Serve the registration form
 app.get('/register', (req, res) => {
-  res.render('registration', {});
+  res.render('registration', {  });
 });
 
 app.get('/login', (req, res) => {
-  res.render('login', {});
+  res.render('login', { msg : 'Login to Your Account' });
+});
+
+app.get('/newLogin', (req, res) => {
+  res.render('login', { msg : 'Registration Successfull ! Login to Your Account' });
+});
+
+app.get('/profile', (req, res) => {
+  if (req.session && req.session.user) {
+    // The 'user' session variable is set
+    username = req.session.user.name;
+    usermobile = req.session.user.mobile;
+    useremail = req.session.user.email;
+
+    res.render('profile', { name: username, email: useremail, mobile: usermobile });
+  } else {
+    // The 'user' session variable is not set
+    // res.send('Session is not set');
+    console.log('failed');
+  }
 });
 
 // Function to authenticate a user
@@ -86,18 +105,18 @@ app.post('/auth', async (req, res) => {
 // Handle form submission
 app.post('/registration', async (req, res) => {
   try {
-    const { name, email, password, number } = req.body;
+    const { name, email, password, mobile } = req.body;
 
     // Insert user registration data into the database
     const connection = await pool.getConnection();
     await connection.execute(
-      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-      [name, email, password]
+      'INSERT INTO users (name, email, password, mobile) VALUES (?, ?, ?, ?)',
+      [name, email, password, mobile]
     );
     connection.release();
 
     console.log('Registration successful');
-    res.redirect('/login');
+    res.redirect('/newLogin');
   } catch (error) {
     console.error('Error inserting data into the database:', error);
     res.status(500).send('Registration failed');
