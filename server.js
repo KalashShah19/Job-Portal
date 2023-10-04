@@ -22,7 +22,7 @@ app.use(session({
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: 'root',
   database: 'jobPortal',
 });
 
@@ -35,7 +35,6 @@ app.get('/home', (req, res) => {
 
 // Serve the registration form
 app.get('/register', (req, res) => {
-  var dynamicText = "Dynamic";
   res.render('registration', {});
 });
 
@@ -47,42 +46,36 @@ app.get('/login', (req, res) => {
 async function authenticateUser(email, password) {
   const connection = await pool.getConnection();
   try {
-    const [rows, fields] = await connection.execute(
-      'SELECT * FROM users WHERE email = ? and password = ?',
-      [email,password]
-    );
+    const [rows, fields] = await connection.execute('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
 
     if (rows.length === 0) {
-      return null; // User not found
+      return null; // User not found or incorrect credentials
     }
-    else {
-      const user = rows[0];
-      return user;
-    }
+
+    const user = rows[0];
+    return user; // Authentication successful
   } catch (error) {
-    console.error('Error Authenticating User:', error);
+    console.error('Error authenticating user:', error);
     throw error;
-  } finally {
-    
   }
 }
 
 // Login route
 app.post('/auth', async (req, res) => {
   const { email, password } = req.body;
-
+  console.log(email,password);
   try {
     const user = await authenticateUser(email, password);
-    username = user[0].name;
+    console.log(user);
 
     if (user) {
       // Authentication successful
-      req.session.user = { username }; // Store user data in the session
-      res.status(200).json({ message: 'Login successful', user });
-      res.render('user', { username, id });
+      req.session.user = { user }; // Store user data in the session
+      console.log('Login Successful');
+      res.redirect('/user');
     } else {
       // Authentication failed
-      res.status(401).json({ message: 'Login failed: Invalid credentials' });
+      console.log('Login Failed');
     }
   } catch (error) {
     console.error('Error querying MySQL:', error);
@@ -93,13 +86,13 @@ app.post('/auth', async (req, res) => {
 // Handle form submission
 app.post('/registration', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, email, password, number } = req.body;
 
     // Insert user registration data into the database
     const connection = await pool.getConnection();
     await connection.execute(
       'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-      [username, email, password]
+      [name, email, password]
     );
     connection.release();
 
@@ -114,6 +107,7 @@ app.post('/registration', async (req, res) => {
 // Display user information
 app.get('/user', async (req, res) => {
   try {
+    res.render('user', {});
     // Select data from the 'users' table (change the query as needed)
     const connection = await pool.getConnection();
     const [rows] = await connection.execute('SELECT * FROM users WHERE id = 1');
