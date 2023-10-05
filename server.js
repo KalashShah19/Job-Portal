@@ -29,6 +29,7 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('videos'));
 
+
 app.get('/home', (req, res) => {
   res.sendFile(__dirname + '/home.html'); // Replace with the actual path to your home.html file
 });
@@ -82,14 +83,16 @@ async function authenticateUser(email, password) {
 // Login route
 app.post('/auth', async (req, res) => {
   const { email, password } = req.body;
-  console.log(email,password);
   try {
     const user = await authenticateUser(email, password);
-    console.log(user);
+    const username = user.name;
+    const id = user.id;
+    console.log(user.id);
 
     if (user) {
       // Authentication successful
-      req.session.user = { user }; // Store user data in the session
+      req.session.username = username; // Store user data in the session
+      req.session.id = id; // Store user data in the session
       console.log('Login Successful');
       res.redirect('/user');
     } else {
@@ -126,7 +129,9 @@ app.post('/registration', async (req, res) => {
 // Display user information
 app.get('/user', async (req, res) => {
   try {
-    res.render('user', {});
+    const un = req.session.username;
+    const uid = req.session.id;
+    res.render('user', { username : un });
     // Select data from the 'users' table (change the query as needed)
     const connection = await pool.getConnection();
     const [rows] = await connection.execute('SELECT * FROM users WHERE id = 1');
