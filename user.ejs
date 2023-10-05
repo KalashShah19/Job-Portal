@@ -126,15 +126,15 @@
     }
 
     .heading2 {
-      font-size: 20px;
+      font-size: 25px;
       text-shadow: none;
       word-spacing: 6px;
       margin-left: 20px;
     }
 
     .image2 {
-      width: 450px;
-      height: 400px;
+      width: 600px;
+      height: 450px;
       margin-top: 50px;
     }
 
@@ -205,26 +205,30 @@
 </head>
 
 <body>
-  <div class="contianer">
+  <div class="container">
     <div class="header">
+      <ul>
+        <li><a href="#"><img class="logo" src="logo.png" alt="Logo"></a></li>
+        <li><a href="home">Home</a></li>
+        <li><a href="profile">Profile</a></li>
+        <li><a href="#"></a></li>
+        <li><a href="#"></a></li>
+      </ul>
       <div class="sub1">
-        <img src="https://mobirise.com/extensions/resultm5/affiliate-marketing/assets/images/logo.png" alt=""
-          class="logo">
+        <a href="#"><img class="logo"
+            src="https://cdn3.vectorstock.com/i/1000x1000/74/47/job-portal-logo-design-template-concept-vector-37017447.jpg"
+            alt="Logo"></a>
       </div>
       <div class="sub2">
-        <ul>
-          <li><a href="">Home</a></li>
-          <li><a href="profile">Profile</a></li>
-          <li><a href="">Saved Jobs</a></li>
-          <li><a href="">Applications</a></li>
-          <li><a href="">Profile</a></li>
-        </ul>
+        <form>
+          <button formaction="logout" class="butt2"> Logout </button>
+        </form>
       </div>
     </div>
-
     <div class="section">
       <div class="sub3">
-        <h1 class="heading1"> Welcome <%= username %> </h1>
+        <h1 class="heading1"> Welcome <%= username %>
+        </h1>
         <h1> Get Hired Easily ! </h1>
         <p class="heading2"> We aim to efficiently match job seekers with suitable positions, facilitate the discovery
           of diverse job listings, provide streamlined recruitment services for employers, ensure accessibility and
@@ -233,7 +237,7 @@
           vital intermediary between individuals and job opportunities. </p>
       </div>
       <div class="sub4">
-        <video src="videos/vdo.mp4" width="400" height="400" autoplay playsinline muted></video>
+        <img class="image2" src="https://kalashshah19.github.io/img/hire.gif" alt="Image">
       </div>
     </div>
   </div>
