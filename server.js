@@ -98,8 +98,13 @@ app.post('/save', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  if (req.session && req.session.username) {
-    res.redirect('/user');
+  if (req.session && req.session.usertype) {
+    if (usertype == "client") {
+      res.redirect('/user');
+    }
+    else if (usertype == "admin") {
+      res.redirect('/admin');
+    }
   }
   else {
     res.render('login', { msg: 'Login to Your Account' });
@@ -116,6 +121,8 @@ app.get('/profile', (req, res) => {
     username = req.session.username;
     usermobile = req.session.mobile;
     useremail = req.session.email;
+    useraddress = req.session.address;
+    usertype = req.session.usertype;
 
     res.render('profile', { name: username, email: useremail, mobile: usermobile });
   } else {
@@ -156,14 +163,24 @@ app.post('/auth', async (req, res) => {
       const mobile = user.mobile;
       const useremail = user.email;
       const pass = user.password;
+      const usertype = user.usertype;
+      const address = user.address;
+
       // Authentication successful
       req.session.username = username; // Store user data in the session
       req.session.uid = id; // Store user data in the session
       req.session.email = useremail; // Store user data in the session
       req.session.mobile = mobile; // Store user data in the session
       req.session.password = pass; // Store user data in the session
+      req.session.usertype = usertype; // Store user data in the session
+      req.session.address = address; // Store user data in the session
       console.log('Login Successful');
-      res.redirect('/user');
+      if (usertype == "client") {
+        res.redirect('/user');
+      }
+      else if (usertype == "admin") {
+        res.redirect('/admin');
+      }
     } else {
       // Authentication failed
       res.send("<script>alert('Login Failed !'); window.location.href = '/login'; </script>");
@@ -177,7 +194,7 @@ app.post('/auth', async (req, res) => {
 // Handle form submission
 app.post('/registration', async (req, res) => {
   try {
-    const { name, email, password, mobile } = req.body;
+    const { name, email, password, mobile, address } = req.body;
 
     var flag = true;
     //Validation of inputs
@@ -185,6 +202,12 @@ app.post('/registration', async (req, res) => {
       flag = false;
       console.log('name invalid');
       res.send('<script> Name should contain only letters and spaces !</script>');
+    }
+
+    if (address.length > 500) {
+      flag = false;
+      console.log('Address Too long');
+      res.send("<script> alert('Address can be maximum of 500 characters only.'); window.document.location.href='register'; </script>");
     }
 
     if (password.length < 6) {
@@ -197,14 +220,12 @@ app.post('/registration', async (req, res) => {
       // Insert user registration data into the database
       const connection = await pool.getConnection();
       await connection.execute(
-        'INSERT INTO users (name, email, password, mobile) VALUES (?, ?, ?, ?)',
-        [name, email, password, mobile]
+        'INSERT INTO users (name, email, password, mobile, usertype, address) VALUES (?, ?, ?, ?, ?, ?)',
+        [name, email, password, mobile, "client", address]
       );
 
       console.log('Registration successful');
-      res.send("<script> alert('Registration Successful !');  window.document.location.href='user'; </script>");
-
-      res.redirect('/newLogin');
+      res.send("<script> alert('Registration Successful !');  window.document.location.href='/newLogin'; </script>");
     }
     else {
       res.send("<script> alert('Invalid Inputs !'); </script>");
@@ -339,6 +360,30 @@ app.post('/checkotp', async (req, res) => {
     console.log('Wrong OTP!');
     res.send("<script> alert('Wrong OTP !'); window.document.location.href='check';</script>");
   }
+});
+
+// Create a route to fetch and display user data
+app.get('/admin', async (req, res) => {
+  try {
+    // Create a MySQL connection
+    const connection = await pool.getConnection();
+
+    // Perform a SELECT query to fetch user data
+    const [rows] = await connection.execute('SELECT * FROM users'); 
+
+    // Render the EJS template and pass the fetched data
+    res.render('admin', { users: rows });
+    
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+});
+
+app.get('/delete', async (req, res) => {
+  var id = req.query.id;
+  const connection = await pool.getConnection();
+  connection.execute('delete from users where id = ?', [id]);
+  res.send('<script> alert("User Deleted Successfully !"); window.document.location.href="admin";</script>');
 });
 
 // Start the server

@@ -154,7 +154,7 @@
     input[type=email],
     input[type=password],
     input[type=number],
-    input[type=text] {
+    input[type=text], textarea {
       font-size: x-large;
     }
 
@@ -228,13 +228,14 @@
 
     <div class="section">
       <div class="sub3">
-        <h1 class="heading1">Register</h1>
+        <h1 class="heading1">Registration</h1>
         <form action="registration" method="post">
           <input type="text" id="name" placeholder="Name" name="name" required><br><br>
           <input type="number" id="number" placeholder="Mobile Number" name="mobile" min="999999999" max="9999999999"
             required><br><br>
           <input type="email" id="email" placeholder="Email" name="email" required><br><br>
           <input type="password" placeholder="Password" id="password" name="password" required><br><br>
+          <textarea name="address" style="width:285px" placeholder="Address"></textarea><br><br>
           <input type="submit" value="Register" class="butt1">
         </form>
       </div>
