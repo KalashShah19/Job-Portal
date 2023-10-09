@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const express = require('express');
 const ejs = require('ejs');
 const mysql = require('mysql2/promise'); // Use promise-based MySQL
@@ -42,6 +43,16 @@ app.get('/logout', (req, res) => {
 // Serve the registration form
 app.get('/register', (req, res) => {
   res.render('registration', {});
+});
+
+
+// Serve the forgot password form
+app.get('/forgot', (req, res) => {
+  res.render('forgot', {});
+});
+
+app.get('/check', (req, res) => {
+  res.render('check', {});
 });
 
 app.get('/change', (req, res) => {
@@ -138,7 +149,7 @@ app.post('/auth', async (req, res) => {
   try {
     const user = await authenticateUser(email, password);
     // console.log(user);
-    
+
     if (user) {
       const username = user.name;
       const id = user.id;
@@ -160,7 +171,6 @@ app.post('/auth', async (req, res) => {
     }
   } catch (error) {
     console.error('Error querying MySQL:', error);
-    res.status(500).json({ message: error });
   }
 });
 
@@ -212,7 +222,7 @@ app.post('/update', async (req, res) => {
     const connection = await pool.getConnection();
     const uid = req.session.uid;
     const { up_name, up_email, up_mobile } = req.body;
-    console.log(up_email, up_mobile, up_name);
+    // console.log(up_email, up_mobile, up_name);
 
     const [result] = await connection.execute('UPDATE users SET name = ?, email = ?, mobile = ? WHERE id = ?', [up_name, up_email, up_mobile, uid]);
 
@@ -233,6 +243,83 @@ app.post('/update', async (req, res) => {
   }
 });
 
+// Gmail SMTP configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: '20bmiit116@gmail.com', // Your Gmail email address
+    pass: 'lszz pmyd owxc cdsp', // Your Gmail password or an App Password (recommended)
+  },
+});
+
+// Express.js route to send an email
+app.post('/OTP', async (req, res) => {
+  const email = req.body.email;
+  const sub = "Login OTP for Online Job Portal";
+  const OTP = Math.floor((Math.random() * 9999) + 1000).toString();
+  console.log("OTP = ", OTP);
+  console.log("mail = ", email);
+  var flag = null;
+  
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.execute('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (rows.length === 0) {
+      flag = false;
+    }
+    else{
+      flag = true;
+      // console.log(rows);
+      // console.log('name = ',rows[0].name);
+      req.session.username = rows[0].name;
+      req.session.uid = rows[0].id; // Store user data in the session
+      req.session.email = rows[0].email; // Store user data in the session
+      req.session.mobile = rows[0].mobile; // Store user data in the session
+      req.session.password = rows[0].password; // Store user data in the session
+    }
+
+  } catch (error) {
+    console.error('Error finding email :', error);
+    throw error;
+  }
+     
+  const mailOptions = {
+    from: '20bmiit116@gmail.com', // Sender's Gmail email address
+    to: email, // Recipient's email address
+    subject: sub,
+    text: OTP,
+  };
+
+  if (flag==true) {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('OTP Email sent!');
+        req.session.otp = OTP;
+        res.redirect('/check');
+      }
+    });
+  } else {
+    console.log('Email Not Found');
+    res.send("<script> alert('Email Not Found !'); window.document.location.href='forgot';</script>"); 
+  }
+});
+
+app.post('/checkotp', async (req, res) => {
+  const otp = req.session.otp;
+  console.log('otp = ', otp);
+  const input = req.body.input;
+  if (otp == input) {
+    console.log('OTP Correct');
+    res.send("<script> alert('Login Successfull !'); window.document.location.href='user';</script>");
+  }
+  else {
+    console.log('Wrong OTP!');
+    res.send("<script> alert('Wrong OTP !'); window.document.location.href='check';</script>");
+  }
+});
 
 // Start the server
 app.listen(port, () => {

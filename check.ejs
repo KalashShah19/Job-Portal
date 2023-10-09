@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Profile </title>
+  <title>Check OTP</title>
   <style>
     body {
       background-color: #29a5c9;
@@ -14,6 +14,24 @@
       display: flex;
       flex-direction: column;
       flex-wrap: wrap;
+    }
+
+    .message {
+      padding: 15px;
+      background-color: white;
+      color: #29a5c9;
+      animation: fadeOut 4s linear forwards;
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        display: none;
+      }
     }
 
     .header {
@@ -126,8 +144,8 @@
     }
 
     .heading2 {
-      font-size: 20px;
-      text-shadow: none;
+      font-size: 35px;
+      text-shadow: 2px;
       word-spacing: 6px;
       margin-left: 20px;
     }
@@ -152,15 +170,13 @@
     }
 
     input[type=email],
-    input[type=password],
-    input[type=number],
-    input[type=text] {
+    input[type=password],input[type=number] {
       font-size: x-large;
     }
 
     @media screen and (max-width: 480px) {
       body {
-        color: #29a5c9;
+        background-color: rgb(129, 17, 235);
       }
 
       .container {
@@ -210,11 +226,10 @@
   <div class="container">
     <div class="header">
       <ul>
-        <li><a href="#"><img class="logo" src="logo.png" alt="Logo"></a></li>
-        <li><a href="user">Home</a></li>
-        <li><a href="">Applied Jobs</a></li>
-        <li><a href="">Saved Jobs</a></li>
-        <li><a href="">Notifications</a></li>
+        <li><a href="home">Home</a></li>
+        <li><a href="">About</a></li>
+        <li><a href="">Packs</a></li>
+        <li><a href="">Feedbacks</a></li>
       </ul>
       <div class="sub1">
         <a href="#"><img class="logo"
@@ -223,24 +238,22 @@
       </div>
       <div class="sub2">
         <form>
-          <button formaction="logout" class="butt2"> Logout </button>
+          <button formaction="login" class="butt2"> Login </button>
         </form>
       </div>
     </div>
 
     <div class="section">
       <div class="sub3">
-        <h1 class="heading1">Profile</h1>
-        <form action="update" method="post">
-          <input type="text" value="<%= name %>" id="name" placeholder="Name" name="up_name" required><br><br>
-          <input type="number" id="number" value="<%= mobile %>" placeholder="Mobile Number" name="up_mobile"
-            min="999999999" max="9999999999" required><br><br>
-          <input type="email" id="email" placeholder="Email" value="<%= email %>" name="up_email" required><br><br>
-          <input type="submit" value="Update" class="butt1">
-          <button formaction="change" style="width: auto;" class="butt2"> Change Password </button>
+        <h1 class="heading1">Check OTP</h1>
+        <form action="checkotp" method="post">
+          <h2> OTP is sent on your registered Email. Kindly Check.</h2><br>
+          <input type="number" id="OTP" placeholder="Enter OTP" name="input" required><br><br>
+          <button class="butt1">Check</button>
         </form>
       </div>
       <div class="sub4">
+        <h2 class="heading2"> Confidentiality is our Concern </h2>
         <img class="image2" src="https://kalashshah19.github.io/img/hire.gif" alt="Image">
       </div>
     </div>
