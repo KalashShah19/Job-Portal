@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const express = require('express');
 const ejs = require('ejs');
-const mysql = require('mysql2/promise'); // Use promise-based MySQL
+const mysql = require('mysql2/promise');
 const session = require('express-session');
 
 // Create a MySQL pool for database connections
@@ -179,16 +179,36 @@ app.post('/registration', async (req, res) => {
   try {
     const { name, email, password, mobile } = req.body;
 
-    // Insert user registration data into the database
-    const connection = await pool.getConnection();
-    await connection.execute(
-      'INSERT INTO users (name, email, password, mobile) VALUES (?, ?, ?, ?)',
-      [name, email, password, mobile]
-    );
-    connection.release();
+    var flag = true;
+    //Validation of inputs
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+      flag = false;
+      console.log('name invalid');
+      res.send('<script> Name should contain only letters and spaces !</script>');
+    }
 
-    console.log('Registration successful');
-    res.redirect('/newLogin');
+    if (password.length < 6) {
+      flag = false;
+      console.log('Password Invalid');
+      res.send("<script> alert('Password should be atleadt 6 Characters Long'); window.document.location.href='register'; </script>");
+    }
+
+    if (flag == true) {
+      // Insert user registration data into the database
+      const connection = await pool.getConnection();
+      await connection.execute(
+        'INSERT INTO users (name, email, password, mobile) VALUES (?, ?, ?, ?)',
+        [name, email, password, mobile]
+      );
+
+      console.log('Registration successful');
+      res.send("<script> alert('Registration Successful !');  window.document.location.href='user'; </script>");
+
+      res.redirect('/newLogin');
+    }
+    else {
+      res.send("<script> alert('Invalid Inputs !'); </script>");
+    }
   } catch (error) {
     console.error('Error inserting data into the database:', error);
   }
@@ -239,7 +259,7 @@ app.post('/update', async (req, res) => {
 
     // console.log('update');
   } catch (error) {
-    console.error('Error querying MySQL:', error);
+    console.error('Error Registering:', error);
   }
 });
 
@@ -260,7 +280,7 @@ app.post('/OTP', async (req, res) => {
   console.log("OTP = ", OTP);
   console.log("mail = ", email);
   var flag = null;
-  
+
   const connection = await pool.getConnection();
   try {
     const [rows] = await connection.execute('SELECT * FROM users WHERE email = ?', [email]);
@@ -268,7 +288,7 @@ app.post('/OTP', async (req, res) => {
     if (rows.length === 0) {
       flag = false;
     }
-    else{
+    else {
       flag = true;
       // console.log(rows);
       // console.log('name = ',rows[0].name);
@@ -283,7 +303,7 @@ app.post('/OTP', async (req, res) => {
     console.error('Error finding email :', error);
     throw error;
   }
-     
+
   const mailOptions = {
     from: '20bmiit116@gmail.com', // Sender's Gmail email address
     to: email, // Recipient's email address
@@ -291,7 +311,7 @@ app.post('/OTP', async (req, res) => {
     text: OTP,
   };
 
-  if (flag==true) {
+  if (flag == true) {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Error sending email:', error);
@@ -303,7 +323,7 @@ app.post('/OTP', async (req, res) => {
     });
   } else {
     console.log('Email Not Found');
-    res.send("<script> alert('Email Not Found !'); window.document.location.href='forgot';</script>"); 
+    res.send("<script> alert('Email Not Found !'); window.document.location.href='forgot';</script>");
   }
 });
 
