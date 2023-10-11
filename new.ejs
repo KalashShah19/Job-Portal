@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <style>
+        body {
+            background-color: #29a5c9;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            list-style-type: none;
+
+        }
+
+        li {
+            margin-left: 30px;
+            color: white;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo {
+            height: 30px;
+            width: 30px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        .sub1 {
+            flex-grow: 3;
+            margin-left: 20px;
+        }
+
+        .sub2 {
+            flex-grow: 7;
+        }
+
+        .butt1,
+        .butt2 {
+            height: 40px;
+            width: 120px;
+            background-color: transparent;
+            color: white;
+            border: 3px solid;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt2 {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt1:hover {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+        }
+
+        .butt2:hover {
+            opacity: 0.8;
+        }
+
+        li:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .sub3,
+        .sub4 {
+            width: 50%;
+            height: 100%;
+        }
+
+        .sub3,
+        .sub4 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heading1,
+        .heading2 {
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        .heading2 {
+            font-size: 35px;
+            text-shadow: 2px;
+            word-spacing: 6px;
+            margin-left: 20px;
+        }
+
+        .image2 {
+            width: 600px;
+            height: 450px;
+            margin-top: 50px;
+        }
+
+        .image3 {
+            width: 300px;
+            height: 500px;
+            position: absolute;
+            top: 15%;
+        }
+
+        .butt3 {
+            width: 150px;
+            height: 60px;
+            border-radius: 30px;
+        }
+
+        input[type=email],
+        input[type=password],
+        input[type=number],
+        input[type=text],
+        textarea {
+            font-size: x-large;
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                color: #29a5c9;
+            }
+
+            .container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+
+            .section {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            .heading2 {
+                font-size: 20px;
+                width: 100%;
+                height: 600px;
+            }
+
+            .image3 {
+                position: absolute;
+                top: 1175px;
+                width: 200px;
+                height: 300px;
+            }
+
+            .image2 {
+                width: 300px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <ul>
+                <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
+                <li><a href="admin">Manage Users</a></li>
+                <li><a href="new">New Admin</a></li>
+                <li><a href="">Companies</a></li>
+                <li><a href=""></a></li>
+            </ul>
+            <div class="sub1">
+                <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
+            </div>
+            <div class="sub2">
+                <form>
+                    <button formaction="logout" class="butt2"> Logout </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="sub3">
+                <h1 class="heading1">New Admin</h1>
+                <form action="newAdmin" method="post">
+                    <input type="text" id="name" placeholder="Name" name="name" required><br><br>
+                    <input type="number" id="number" placeholder="Mobile Number" name="mobile" min="999999999"
+                        max="9999999999" required><br><br>
+                    <input type="email" id="email" placeholder="Email" name="email" required><br><br>
+                    <input type="password" placeholder="Password" id="password" name="password" required><br><br>
+                    <textarea name="address" style="width:285px" placeholder="Address"></textarea><br><br>
+                    <input type="submit" value="Create" class="butt1">
+                </form>
+            </div>
+            <div class="sub4">
+                <h2 class="heading2">Unlock your career potential with online job portal !</h2>
+                <img class="image2" src="https://kalashshah19.github.io/img/hire.gif" alt="Image">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
