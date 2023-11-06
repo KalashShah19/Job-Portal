@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied Jobs</title>
+    <style>
+        body {
+            background-color: #29a5c9;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            list-style-type: none;
+
+        }
+
+        li {
+            margin-left: 30px;
+            color: white;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo {
+            height: 30px;
+            width: 30px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        .sub1 {
+            flex-grow: 3;
+            margin-left: 20px;
+        }
+
+        .sub2 {
+            flex-grow: 7;
+        }
+
+        .butt1,
+        .butt2 {
+            height: 40px;
+            width: 120px;
+            background-color: transparent;
+            color: white;
+            border: 3px solid;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt2 {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt1:hover {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+        }
+
+        .butt2:hover {
+            opacity: 0.8;
+        }
+
+        li:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .sub3,
+        .sub4 {
+            width: 50%;
+            height: 100%;
+        }
+
+        .sub3,
+        .sub4 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heading1,
+        .heading2 {
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        .heading2 {
+            font-size: 20px;
+            text-shadow: none;
+            word-spacing: 6px;
+            margin-left: 20px;
+        }
+
+        .image2 {
+            width: 600px;
+            height: 450px;
+            margin-top: 50px;
+        }
+
+        .image3 {
+            width: 300px;
+            height: 500px;
+            position: absolute;
+            top: 15%;
+        }
+
+        .butt3 {
+            height: 40px;
+            width: 120px;
+            border-radius: 30px;
+        }
+
+        input[type=email],
+        input[type=password],
+        input[type=number],
+        input[type=text] {
+            font-size: x-large;
+        }
+
+        .butt3 {
+            width: 150px;
+            height: 60px;
+            border-radius: 30px;
+            background-color: #29a5c9;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .butt3:hover {
+            background-color: #1f8fa7;
+        }
+
+        .butta,
+        .butta2 {
+            display: inline-block;
+            height: 40px;
+            width: 120px;
+            border-radius: 30px;
+            background-color: #29a5c9;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            line-height: 40px;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .butta2 {
+            border: 3px solid #29a5c9;
+            border-radius: 30px;
+            background-color: white;
+            color: #29a5c9;
+        }
+
+        .job-listings {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .job {
+            background-color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .job-details {
+            flex-grow: 1;
+        }
+
+        .job-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .job-description {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .job-location,
+        .job-salary {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #444;
+        }
+
+        .job-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('navbar.ejs') %>
+    </div>
+
+    <div class="section">
+        <div class="sub3">
+            <h1 class="heading1">Jobs</h1>
+        </div>
+        <div class="sub4">
+            <h2 class="heading2">Find Your Dream Job Today! </h2>
+        </div>
+    </div>
+
+    <div class="job-listings">
+        <% job.forEach((data)=> { %>
+
+            <div class="job">
+                <div class="job-details">
+                    <h2 class="job-title">
+                        <%= data.jobRole %>
+                    </h2>
+                    <p class="job-description"> Company : <%= data.company %>
+                    </p>
+                    <p class="job-description">
+                        <%= data.description %>
+                    </p>
+                    <p class="job-location"> Skills Required : <%= data.skills %>
+                    </p>
+                    <p class="job-salary"> Salary : <%= data.salary %>
+                    </p>
+                    <p class='job-description'> Type : <%= data.jobType %>
+                    </p>
+                    <p class='job-description'> Category : <%= data.category %>
+                    </p>
+                    <p class='job-description'>Timing : <%= data.jobTiming %>
+                    </p>
+                    <p class='job-description'>Total Vacancies : <%= data.vacancy %>
+                    </p>
+                    <p class="job-location">Already Hired : <%= data.hired %>
+                    </p>
+                    <p class="job-location"> Start Date : <%= data.startDate %>
+                    </p>
+                    <p class="job-location">Last Date : <%= data.endDate %>
+                    </p>
+                    <p class="job-location">Location : <%= data.jobAddress %>
+                    </p>
+                </div>
+                <img src="google.png" alt="Company" class="job-image">
+            </div>
+    </div>
+    </div>
+    <% }); %>
+        </div>
+        </div>
+</body>
+
+</html>

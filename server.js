@@ -1,5 +1,6 @@
-const nodemailer = require('nodemailer');
 const express = require('express');
+const nodemailer = require('nodemailer');
+const multer = require('multer');
 const ejs = require('ejs');
 const mysql = require('mysql2/promise');
 const session = require('express-session');
@@ -11,11 +12,15 @@ const pool = mysql.createPool({
   password: '',
   database: 'jobPortal',
 });
+
 const app = express();
 const port = process.env.PORT || 3000;
+app.use('/uploads', express.static('images'));
+app.use(express.static('images'));
 app.set('view engine', 'ejs');
 app.set('views', __dirname);
 app.use(express.json());
+
 // Configure session options
 app.use(session({
   secret: 'jobportalsession', // Replace with a secure secret key
@@ -24,9 +29,11 @@ app.use(session({
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('videos'));
+
 app.get('/home', (req, res) => {
   res.render('home', {});
 });
+
 app.get('/logout', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store');
   res.setHeader('Pragma', 'no-cache');
@@ -88,10 +95,10 @@ app.get('/login', (req, res) => {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   if (req.session && req.session.usertype) {
-    if (usertype == "client") {
+    if (req.session.usertype == "client") {
       res.redirect('/user');
     }
-    else if (usertype == "admin") {
+    else if (req.session.usertype == "admin") {
       res.redirect('/admin');
     }
   }
@@ -105,20 +112,19 @@ app.get('/newLogin', (req, res) => {
   res.setHeader('Expires', '0');
   res.render('login', { msg: 'Registration Successfull ! Login to Your Account' });
 });
-app.get('/profile', (req, res) => {
+app.get('/profile', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  if (req.session && req.session.uid) {
-    // The 'user' session variable is set
-    username = req.session.username;
-    usermobile = req.session.mobile;
-    useremail = req.session.email;
-    useraddress = req.session.address;
-    usertype = req.session.usertype;
-    res.render('profile', { name: username, email: useremail, mobile: usermobile, address: useraddress });
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+    var usertype = req.session.usertype;
+    var userId = req.session.uid;
+    const connection = await pool.getConnection();
+    const [data] = await connection.execute('SELECT * FROM `jobSeeker` join users on users.userId = jobSeeker.userId WHERE jobSeeker.userId = ?', [userId]);
+    // console.log(data);
+    res.render('profile', { data });
   } else {
-    // The 'user' session variable is not set
     res.redirect('/login');
     console.log('failed');
   }
@@ -146,20 +152,12 @@ app.post('/auth', async (req, res) => {
     // console.log(user);
     if (user) {
       const username = user.name;
-      const id = user.id;
-      const mobile = user.mobile;
-      const useremail = user.email;
-      const pass = user.password;
+      const id = user.userId;
       const usertype = user.usertype;
-      const address = user.address;
       // Authentication successful
-      req.session.username = username; // Store user data in the session
       req.session.uid = id; // Store user data in the session
-      req.session.email = useremail; // Store user data in the session
-      req.session.mobile = mobile; // Store user data in the session
-      req.session.password = pass; // Store user data in the session
+      req.session.username = username; // Store user data in the session
       req.session.usertype = usertype; // Store user data in the session
-      req.session.address = address; // Store user data in the session
       console.log('Login Successful');
       if (usertype == "client") {
         res.redirect('/user');
@@ -225,12 +223,6 @@ app.get('/user', async (req, res) => {
       if (usertype == "client") {
         const un = req.session.username;
         res.render('user', { username: un });
-        // Select data from the 'users' table (change the query as needed)
-        const connection = await pool.getConnection();
-        const id = req.session.uid;
-        // console.log(id);
-        const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [id]);
-
       }
       else if (usertype == "admin") {
         res.redirect('/admin');
@@ -245,27 +237,56 @@ app.get('/user', async (req, res) => {
     console.error('Error querying MySQL:', error);
   }
 });
+
+// image upload
+var up_image = "";
+const img_storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'images/'); // The folder where uploaded images will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Use the original filename
+    up_image = file.originalname;
+  },
+});
+
+const img_upload = multer({ storage: img_storage });
+
 // Update User Profile
-app.post('/update', async (req, res) => {
+app.post('/update', img_upload.single('image'), async (req, res) => {
   try {
     // Select data from the 'users' table (change the query as needed)
     const connection = await pool.getConnection();
     const uid = req.session.uid;
-    const { up_id, up_name, up_email, up_mobile, up_address } = req.body;
-    const [result] = await connection.execute('UPDATE users SET name = ?, email = ?, mobile = ?, address = ?, usertype = ? WHERE id = ?', [up_name, up_email, up_mobile, up_address, up_usertype, up_id,]);
+    const { up_name, up_email, up_mobile, up_address, up_skills, up_achievements, up_qualification, up_hobbies, up_certifications } = req.body;
+    const [result] = await connection.execute(
+      'UPDATE users SET name = ?, mobile = ?, email = ? , address = ? WHERE userId = ?',
+      [up_name, up_mobile, up_email, up_address, uid]
+    );
+    if (up_image != null) {
+      const [result2] = await connection.execute(
+        'UPDATE jobSeeker SET image=?, qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
+        [up_image, up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
+      );
+    } if(up_image == null ) {
+      const [result2] = await connection.execute(
+        'UPDATE jobSeeker SET qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
+        [ up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
+      );
+    }
+
     if (result.affectedRows > 0) {
       req.session.username = up_name;
-      req.session.email = up_email;
-      req.session.mobile = up_mobile;
       res.send("<script>alert('Profile Updated Successfully!'); window.location.href = '/profile'; </script>");
       console.log('Profile Updated Successfully !');
+      console.log('Image uploaded successfully !');
     }
     else {
       console.log('Error while Updating Profile.');
     }
     // console.log('update');
   } catch (error) {
-    console.error('Error Registering:', error);
+    console.error('Error Updating:', error);
   }
 });
 // Gmail SMTP configuration
@@ -276,6 +297,7 @@ const transporter = nodemailer.createTransport({
     pass: 'lszz pmyd owxc cdsp', // Your Gmail password or an App Password (recommended)
   },
 });
+
 // Express.js route to send an email
 app.post('/OTP', async (req, res) => {
   const email = req.body.email;
@@ -345,23 +367,23 @@ app.get('/admin', async (req, res) => {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   try {
-      if (req.session && req.session.usertype) {
-        var usertype = req.session.usertype;
-        if (usertype == "admin") {
-          // Create a MySQL connection
-          const connection = await pool.getConnection();
-          // Perform a SELECT query to fetch user data
-          const [rows] = await connection.execute('SELECT * FROM users');
-          // Render the EJS template and pass the fetched data
-          res.render('admin', { users: rows });
-        }
-        else if (usertype == "client") {
-          res.redirect('/login');
-        }
+    if (req.session && req.session.usertype) {
+      var usertype = req.session.usertype;
+      if (usertype == "admin") {
+
+        const connection = await pool.getConnection();
+
+        const [rows] = await connection.execute('SELECT * FROM users');
+
+        res.render('admin', { users: rows });
       }
-      else {
-        res.render('login', { msg: 'Login to Your Account' });
+      else if (usertype == "client") {
+        res.redirect('/login');
       }
+    }
+    else {
+      res.render('login', { msg: 'Login to Your Account' });
+    }
 
   } catch (error) {
     console.error('Error fetching user data:', error);
@@ -425,7 +447,134 @@ app.post('/edited', async (req, res) => {
   }
 });
 
-// Start the server
+// Post Job
+app.get('/post', (req, res) => {
+  res.render('post', { uid: req.session.uid });
+});
+
+// Viwe all Jobs 
+app.get('/jobs', async (req, res) => {
+  const connection = await pool.getConnection();
+  const [rows] = await connection.execute("SELECT *,jobs.jobId as id FROM jobs LEFT JOIN applications ON jobs.jobId = applications.jobId WHERE applications.jobId IS NULL");
+  res.render('jobs', { jobs: rows });
+});
+
+// View Job Details
+app.get('/job', async (req, res) => {
+  var id = req.query.id;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const [rows] = await connection.execute('SELECT * FROM jobs where jobId =  ?', [id]);
+  res.render('job', { job: rows });
+});
+
+// View Job Details
+app.get('/ajob', async (req, res) => {
+  var id = req.query.id;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const [rows] = await connection.execute('SELECT * FROM jobs where jobId =  ?', [id]);
+  res.render('ajob', { job: rows });
+});
+
+// Insert new Job
+app.post('/insert', async (req, res) => {
+  const {
+    jobRole,
+    company,
+    userId,
+    jobType,
+    jobAddress,
+    vacancy,
+    category,
+    salary,
+    jobTiming,
+    description,
+    jobCriteria,
+    status,
+    startdate,
+    endDate,
+    hired,
+  } = req.body;
+
+  console.log(req.body);
+
+  try {
+    const connection = await pool.getConnection();
+
+    // Insert data into the "jobs" table
+    const insertQuery = `
+      INSERT INTO jobs (jobRole, company, userId, jobType, jobAddress, vacancy, category, salary, jobTiming, description, skills, status, startdate, endDate, hired)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await connection.execute(insertQuery, [
+      jobRole,
+      company,
+      userId,
+      jobType,
+      jobAddress,
+      vacancy,
+      category,
+      salary,
+      jobTiming,
+      description,
+      jobCriteria,
+      status,
+      startdate,
+      endDate,
+      hired,
+    ]);
+
+    res.send("<script>alert('Job Posted Successfully!'); window.location.href = '/post'; </script>");
+    console.log('Job posted successfully.');
+  } catch (error) {
+    res.send("<script>alert('Falied posting job!'); window.location.href = '/post'; </script>");
+    console.error('Error posting job :', error);
+  }
+});
+
+app.get('/apply', async (req, res) => {
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var uid = req.session.uid;
+    var jobId = req.query.id;
+    var insert = "INSERT INTO `applications` (`userId`, `jobId`, `appStatus`) VALUES (?, ?, 'pending');";
+    const connection = await pool.getConnection();
+    await connection.execute(insert, [uid, jobId]);
+    res.send("<script>alert('Applied Successfully!'); window.location.href = '/jobs'; </script>");
+  }
+});
+
+// View Job Details
+app.get('/applied', async (req, res) => {
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var id = req.session.uid;
+    const connection = await pool.getConnection();
+    const [rows] = await connection.execute('SELECT * FROM `applications` join jobs on jobs.jobId = applications.jobId WHERE applications.userId = ?', [id]);
+    res.render('applied', { jobs: rows });
+  }
+});
+
+// Search job 
+app.post('/search', async (req, res) => {
+  const query = req.body.query;
+  const connection = await pool.getConnection();
+  const [results] = await connection.execute('SELECT * FROM `jobs` WHERE jobRole = ? or company = ? or jobAddress = ?', [query, query, query]);
+  res.render('search', { query, searchResults: results });
+  // console.log(results);
+  // console.log(query);
+});
+
+// test
+app.get('/test', (req, res) => {
+  res.render('test', {});
+});
+
+// run application 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

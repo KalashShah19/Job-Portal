@@ -131,9 +131,12 @@
       word-spacing: 6px;
       margin-left: 20px;
     }
-
+    
     .image2 {
+      box-shadow: 8px 8px 8px rgba(0, 0, 0, 0.2);
       width: 600px;
+      border: 3px solid white;
+      border-radius: 60px;
       height: 450px;
       margin-top: 50px;
     }
@@ -154,8 +157,16 @@
     input[type=email],
     input[type=password],
     input[type=number],
-    input[type=text] {
+    input[type=text],
+    input[type=file],
+    textarea {
       font-size: x-large;
+    }
+
+    label {
+      color: white;
+      font-size: x-large;
+      font-style: bold;
     }
 
     @media screen and (max-width: 480px) {
@@ -208,41 +219,58 @@
 
 <body>
   <div class="container">
-    <div class="header">
-      <ul>
-        <li><a href="#"><img class="logo" src="logo.png" alt="Logo"></a></li>
-        <li><a href="user">Home</a></li>
-        <li><a href="">Applied Jobs</a></li>
-        <li><a href="">Saved Jobs</a></li>
-        <li><a href="">Notifications</a></li>
-      </ul>
-      <div class="sub1">
-        <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
-      </div>
-      <div class="sub2">
-        <form>
-          <button formaction="logout" class="butt2"> Logout </button>
-        </form>
-      </div>
-    </div>
+    <%- include('navbar.ejs') %>
 
-    <div class="section">
-      <div class="sub3">
-        <h1 class="heading1">Profile</h1>
-        <form action="update" method="post">
-          <input type="text" value="<%= name %>" id="name" placeholder="Name" name="up_name" required><br><br>
-          <input type="number" id="number" value="<%= mobile %>" placeholder="Mobile Number" name="up_mobile"
-            min="999999999" max="9999999999" required><br><br>
-          <input type="email" id="email" placeholder="Email" value="<%= email %>" name="up_email" required><br><br>
-          <textarea name="address" style="width:285px" placeholder="Address"> <%= address %></textarea><br><br>
-          <input type="submit" value="Update" class="butt1">
-          <button formaction="change" style="width: auto;" class="butt2"> Change Password </button>
-        </form>
+
+      <div class="section">
+        <div class="sub3">
+          <h1 class="heading1">Profile</h1>
+          <form action="update" method="post" enctype="multipart/form-data">
+            <label> Profile Photo : </label>
+            <input type="file" name="image" />  <br><br>
+
+            <label> Name : </label>
+            <input type="text" value="<%= data[0].name %>" id="name" placeholder="Name" name="up_name" required><br><br>
+
+            <label> Qualification : </label>
+            <input type="text" value="<%= data[0].qualification %>" id="qualification" placeholder="Qualification"
+              name="up_qualification" required><br><br>
+
+            <label> Achievements : </label>
+            <input type="text" value="<%= data[0].achievements %>" id="achievements" placeholder="Achievements"
+              name="up_achievements" required><br><br>
+
+
+            <label> Certifications : </label>
+            <input type="text" value="<%= data[0].certifications %>" id="certifications" placeholder="Certifications"
+              name="up_certifications" required><br><br>
+
+            <label> Mobile : </label>
+            <input type="number" id="number" value="<%= data[0].mobile %>" placeholder="Mobile Number" name="up_mobile"
+              min="999999999" max="9999999999" required><br><br>
+
+            <label> Email : </label>
+            <input type="email" id="email" placeholder="Email" value="<%= data[0].email %>" name="up_email"
+              required><br><br>
+
+            <label> Hobbies : </label>
+            <textarea name="up_hobbies" style="width:285px"
+              placeholder="Hobbies"> <%= data[0].hobbies %></textarea><br><br>
+
+            <label> Skills : </label>
+            <textarea name="up_skills" style="width:285px" placeholder="Skills"> <%= data[0].skills %></textarea><br><br>
+
+            <label> Address : </label>
+            <textarea name="up_address" style="width:285px"
+              placeholder="Address"> <%= data[0].address %></textarea><br><br>
+            <input type="submit" value="Update" class="butt1">
+            <button formaction="change" style="width: auto;" class="butt2"> Change Password </button>
+          </form>
+        </div>
+        <div class="sub4">
+          <img class="image2" src="<%= data[0].image %>" alt="Image">
+        </div>
       </div>
-      <div class="sub4">
-        <img class="image2" src="https://kalashshah19.github.io/img/hire.gif" alt="Image">
-      </div>
-    </div>
   </div>
 </body>
 

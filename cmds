@@ -1,0 +1,6 @@
+#kill on 3000
+netstat -ano | find "3000"
+taskkill /F /PID <PID>
+
+#config
+npm install express ejs mysql2 nodemailer
