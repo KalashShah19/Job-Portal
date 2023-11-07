@@ -80,7 +80,7 @@ app.post('/save', async (req, res) => {
     try {
       // Update the user's password in the database
       const connection = await pool.getConnection();
-      await connection.execute('UPDATE users SET password = ? WHERE id = ?', [newp, uid]);
+      await connection.execute('UPDATE users SET password = ? where userId = ?', [newp, uid]);
       res.send("<script>alert('Password Changed Successfully!'); window.location.href = '/profile'; </script>");
     } catch (error) {
       console.error('Error updating password:', error);
@@ -268,10 +268,10 @@ app.post('/update', img_upload.single('image'), async (req, res) => {
         'UPDATE jobSeeker SET image=?, qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
         [up_image, up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
       );
-    } if(up_image == null ) {
+    } if (up_image == null) {
       const [result2] = await connection.execute(
         'UPDATE jobSeeker SET qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
-        [ up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
+        [up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
       );
     }
 
@@ -280,6 +280,7 @@ app.post('/update', img_upload.single('image'), async (req, res) => {
       res.send("<script>alert('Profile Updated Successfully!'); window.location.href = '/profile'; </script>");
       console.log('Profile Updated Successfully !');
       console.log('Image uploaded successfully !');
+      console.log('');
     }
     else {
       console.log('Error while Updating Profile.');
@@ -392,7 +393,7 @@ app.get('/admin', async (req, res) => {
 app.get('/delete', async (req, res) => {
   var id = req.query.id;
   const connection = await pool.getConnection();
-  connection.execute('delete from users where id = ?', [id]);
+  connection.execute('delete from users where userId = ?', [id]);
   res.send('<script> alert("User Deleted Successfully !"); window.document.location.href="admin";</script>');
 });
 
@@ -402,7 +403,7 @@ app.get('/edit', async (req, res) => {
   res.setHeader('Expires', '0');
   var id = req.query.id;
   const connection = await pool.getConnection();
-  const [data] = await connection.execute('SELECT * FROM users WHERE id = ?', [id]);
+  const [data] = await connection.execute('SELECT * FROM users WHERE userId = ?', [id]);
   console.log(data);
   res.render('edit', { id: data[0].id, name: data[0].name, mobile: data[0].mobile, email: data[0].email, address: data[0].address });
 });
@@ -433,7 +434,7 @@ app.post('/edited', async (req, res) => {
     const connection = await pool.getConnection();
     const { up_id, up_name, up_email, up_mobile, up_address } = req.body;
     // console.log(up_email, up_mobile, up_name);
-    const [result] = await connection.execute('UPDATE users SET name = ?, email = ?, mobile = ?, address = ? WHERE id = ?', [up_name, up_email, up_mobile, up_address, up_id]);
+    const [result] = await connection.execute('UPDATE users SET name = ?, email = ?, mobile = ?, address = ? where userId = ?', [up_name, up_email, up_mobile, up_address, up_id]);
     if (result.affectedRows > 0) {
       res.send("<script>alert('User Updated Successfully!'); window.location.href = '/admin'; </script>");
       console.log('User Updated Successfully !');
@@ -569,9 +570,53 @@ app.post('/search', async (req, res) => {
   // console.log(query);
 });
 
-// test
-app.get('/test', (req, res) => {
-  res.render('test', {});
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/newCompany', (req, res) => {
+  res.render('newCompany', {});
+});
+
+// Handle the form submission
+app.post('/newCompany', img_upload.single('logo'), async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    const {
+      name,
+      email,
+      mobile,
+      password,
+      address,
+      estDate,
+      industry,
+      speciality,
+      type,
+      employees,
+      openJobs,
+      hired,
+      website,
+      about,
+    } = req.body;
+
+    const [result] = await connection.execute(
+      'INSERT INTO users (name, email, password, mobile, usertype, address) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, email, password, mobile, "company", address]
+    );
+
+    const userId = result.insertId;
+    var logo = req.file.originalname;
+
+    // Insert data into the company table
+    const [result2] = await connection.execute(
+      'INSERT INTO company (userId, logo, estDate, industry, speciality, type, employees, openJobs, hired, website, about) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, logo, estDate, industry, speciality, type, employees, openJobs, hired, website, about]);
+
+    console.log('New Company added successfully');
+    res.send("<script>alert('Company Registered Successfully!'); window.location.href = '/login'; </script>");
+    
+  } catch (error) {
+    console.log('Error inserting company data:', error);
+  }
 });
 
 // run application 

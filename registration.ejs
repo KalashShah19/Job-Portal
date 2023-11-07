@@ -154,7 +154,8 @@
     input[type=email],
     input[type=password],
     input[type=number],
-    input[type=text], textarea {
+    input[type=text],
+    textarea {
       font-size: x-large;
     }
 
@@ -208,22 +209,7 @@
 
 <body>
   <div class="container">
-    <div class="header">
-      <ul>
-        <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
-        <li><a href="home">Home</a></li>
-          <li><a href="">About</a></li>
-          <li><a href="">Packs</a></li>
-          <li><a href="">Feedbacks</a></li>
-      </ul>
-      <div class="sub1">
-        <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
-      </div>
-      <div class="sub2">
-        <form>
-          <button formaction="login" class="butt2"> Login </button>
-        </form>
-      </div>
+    <%- include('nav.ejs'); %>
     </div>
 
     <div class="section">
@@ -236,12 +222,13 @@
           <input type="email" id="email" placeholder="Email" name="email" required><br><br>
           <input type="password" placeholder="Password" id="password" name="password" required><br><br>
           <textarea name="address" style="width:285px" placeholder="Address"></textarea><br><br>
-          <input type="submit" value="Register" class="butt1">
+          <input type="submit" value="Register" class="butt1"> <br><br><br>
+          <a href="newCompany" class="butt2" style="width:auto;">Register New Company </a>
         </form>
       </div>
       <div class="sub4">
         <h2 class="heading2">Unlock your career potential with online job portal !</h2>
-        <img class="image2" src="https://kalashshah19.github.io/img/hire.gif" alt="Image">
+        <img class="image2" src="hire.gif" alt="Image">
       </div>
     </div>
   </div>

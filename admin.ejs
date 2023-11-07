@@ -233,24 +233,7 @@
 
 <body>
     <div class="container">
-        <div class="header">
-            <div class="sub1">
-                <li><a href="#"><img class="logo" src="https://kalashshah19.github.io/img/logo.jpg" alt="Logo"></a></li>
-            </div>
-            <div class="sub2">
-                <ul>
-                    <li><a href="admin">Manage Users</a></li>
-                    <li><a href="new">New Admin</a></li>
-                    <li><a href="">Companies</a></li>
-                    <li><a href=""></a></li>
-                </ul>
-            </div>
-            <div>
-                <form>
-                    <button formaction="logout" class="butt2"> Logout </button>
-                  </form>
-            </div>
-        </div>
+        <%- include('adminnav.ejs') %>
         <table>
             <tr>
                 <th> Name </th>
@@ -267,8 +250,8 @@
                 <td><%= data.mobile %></td>
                 <td><%= data.address %></td>
                 <td><%= data.usertype %></td>
-                <td> <a href="edit?id=<%= data.id %>"> <img class="icon" src="https://kalashshah19.github.io/img/edit.png"> </a> </td>
-                <td> <a href="delete?id=<%= data.id %>"> <img class="icon" src="https://kalashshah19.github.io/img/delete.png"> </a> </td>
+                <td> <a href="edit?id=<%= data.userId %>"> <img class="icon" src="edit.png"> </a> </td>
+                <td> <a href="delete?id=<%= data.userId %>"> <img class="icon" src="delete.png"> </a> </td>
             </tr>
             <% }); %>
             <!-- Add more rows as needed -->

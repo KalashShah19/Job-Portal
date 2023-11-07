@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>New Company</title>
+    <style>
+        body {
+            background-color: #29a5c9;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            list-style-type: none;
+
+        }
+
+        li {
+            margin-left: 30px;
+            color: white;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo {
+            height: 30px;
+            width: 30px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        .sub1 {
+            flex-grow: 3;
+            margin-left: 20px;
+        }
+
+        .sub2 {
+            flex-grow: 7;
+        }
+
+        .butt1,
+        .butt2 {
+            height: 40px;
+            width: 120px;
+            background-color: transparent;
+            color: white;
+            border: 3px solid;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt2 {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt1:hover {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+        }
+
+        .butt2:hover {
+            opacity: 0.8;
+        }
+
+        li:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .sub3,
+        .sub4 {
+            width: 50%;
+            height: 100%;
+        }
+
+        .sub3,
+        .sub4 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heading1,
+        .heading2 {
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        .heading2 {
+            font-size: 20px;
+            text-shadow: none;
+            word-spacing: 6px;
+            margin-left: 20px;
+        }
+
+        .image2 {
+            width: 600px;
+            height: 450px;
+            margin-top: 50px;
+        }
+
+        .image3 {
+            width: 300px;
+            height: 500px;
+            position: absolute;
+            top: 15%;
+        }
+
+        .butt3 {
+            width: 150px;
+            height: 60px;
+            border-radius: 30px;
+        }
+
+        input[type=email],
+        input[type=password],
+        input[type=number],
+        input[type=text],
+        input[type=file],select,
+        textarea {
+            font-size: x-large;
+        }
+
+        label {
+            color: white;
+            font-size: x-large;
+            font-style: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('nav.ejs') %>
+    </div>
+    <div class="section">
+        <div class="sub3">
+            <h1 class="heading1">Company </h1>
+            <form action="/newCompany" method="post" enctype="multipart/form-data">
+
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required> <br><br>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required> <br><br>
+
+                <label for="mobile">Mobile:</label>
+                <input type="tel" id="mobile" name="mobile" required> <br><br>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required> <br><br>
+
+                <label for="estDate">Establishment Date:</label>
+                <input type="date" id="estDate" name="estDate" required> <br><br>
+
+                <label for="industry">Industry:</label>
+                <input type="text" id="industry" name="industry" required> <br><br>
+
+                <label for="speciality">Speciality:</label>
+                <input type="text" id="speciality" name="speciality" required> <br><br>
+
+                <label for="type">Type:</label>
+                <select name="type">
+                    <option> </option>
+                    <option value="private"> Private</option>
+                    <option value="public"> Public</option>
+                    <option value="co-operative"> Co-Operative </option>
+                </select> <br><br>
+
+                <label for="employees">Number of Employees:</label>
+                <input type="number" id="employees" name="employees" required> <br><br>
+
+                <label for="openJobs">Open Jobs:</label>
+                <input type="number" id="openJobs" name="openJobs" required> <br><br>
+
+                <label for="hired">Hired:</label>
+                <input type="number" id="hired" name="hired" required> <br><br>
+
+                <label for="website">Website:</label>
+                <input type="text" id="website" name="website" required> <br><br>
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="4" required></textarea> <br><br>
+
+                <label for="about">About:</label>
+                <textarea id="about" name="about" rows="4" required></textarea> <br><br>
+
+                <label for="logo">Company Logo:</label>
+                <input type="file" id="logo" name="logo" accept="image/*"> <br><br>
+
+                <button type="submit" class="butt2">Submit</button>
+            </form>
+        </div>
+        <div class="sub4">
+            <img src="hire.gif" alt="Image">
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>
