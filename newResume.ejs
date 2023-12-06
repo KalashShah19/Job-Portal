@@ -1,0 +1,117 @@
+<!-- upload.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Resume</title>
+  <style>
+    body {
+      background-color: #29a5c9;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      list-style-type: none;
+    }
+
+    li {
+      margin-left: 30px;
+      color: white;
+      font-size: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a {
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo {
+      height: 30px;
+      width: 30px;
+      border-radius: 20px;
+      margin-top: 15px;
+    }
+
+    h1 {
+      font-size: 80px;
+      color: white;
+    }
+
+    /* Additional styles for file input */
+    input[type=file] {
+      margin-top: 20px;
+      color: white;
+      font-size: 18px;
+      padding: 10px;
+      border: 2px solid white;
+      background-color: transparent;
+      border-radius: 10px;
+    }
+
+    input[type=file]:hover {
+      cursor: pointer;
+      background-color: #fff;
+      /* Change on hover */
+      color: #29a5c9;
+      /* Change on hover */
+    }
+
+    button[type=submit] {
+      margin-top: 20px;
+      height: 40px;
+      width: 120px;
+      color: #29a5c9;
+      background-color: white;
+      border: 3px solid;
+      border-radius: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    label {
+      color:white;
+      font-size: x-large;
+      font-weight: 500;
+    }
+
+    button[type=submit]:hover {
+      color: white;
+      background-color: #29a5c9;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <center>
+
+    <h1>Upload Resume</h1>
+    <form action="/resume" method="post" enctype="multipart/form-data">
+      <label> Select File : </label> <br></br>
+      <input type="file" name="resume" accept=".pdf, .doc, .docx"> <br>
+      <button type="submit">Upload</button>
+    </form>
+  </center>
+</body>
+
+</html>
+
+</html>

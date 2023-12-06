@@ -185,8 +185,10 @@
       <form action="/insert" method="post">
         
         <input type="hidden" name="userId" value="<%= uid %>" id="userId" required>
-        <input type="hidden" name="status" value="on" id="userId" required>
-        <input type="hidden" name="hired" value="0" id="userId" required>
+        
+        <input type="hidden" name="status" value="on" id="status" required>
+        
+        <input type="hidden" name="hired" value="0" id="hired" required>
         
         <label for="jobRole">Job Role:</label><br>
         <input type="text" name="jobRole" id="jobRole" required><br><br>
@@ -214,30 +216,30 @@
           <option value="home"> Work From Home </option>
         </select> <br><br>
 
-        <label for="salary">Salary:</label><br>
+        <label for="salary"> Salary : </label><br>
         <input type="text" name="salary" id="salary" required><br><br>
 
-        <label for="jobTiming">Job Timing:</label><br>
+        <label for="jobTiming"> Job Timing : </label><br>
         <input type="text" name="jobTiming" id="jobTiming" required><br><br>
 
-        <label for="description">Description:</label><br>
+        <label for="description"> Description : </label><br>
         <textarea name="description" id="description" required></textarea><br><br>
 
-        <label for="jobCriteria">Job Criteria:</label><br>
+        <label for="jobCriteria"> Job Criteria : </label><br>
         <textarea name="jobCriteria" id="jobCriteria" required></textarea><br><br>
 
-        <label for="startdate">Start Date:</label><br>
-        <input type="date" name="startdate" id="startdate" required><br><br>
-
-        <label for="endDate">End Date:</label><br>
+        <label for="endDate"> Last Application Date : </label><br>
         <input type="date" name="endDate" id="endDate" required><br><br>
+
+        <label for="startdate"> Job Start Date : </label><br>
+        <input type="date" name="startdate" id="startdate" required><br><br>
 
         <input class="butt1" type="submit" value="POST JOB">
       </form>
     </div>
     <div class="sub4">
-      <h2 class="heading2">Unlock your career potential with online job portal !</h2>
-      <img class="image2" src="hire.gif" alt="Image">
+      <h2 class="heading2"> Find Potential Employees for Your Company !</h2>
+      <img class="image2" src="<%= data[0].logo %>" alt="Image">
     </div>
   </div>
 </body>

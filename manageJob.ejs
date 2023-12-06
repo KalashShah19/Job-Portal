@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> New Job </title>
+    <style>
+        body {
+            background-color: #29a5c9;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        ul {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            list-style-type: none;
+
+        }
+
+        li {
+            margin-left: 30px;
+            color: white;
+            font-size: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo {
+            height: 30px;
+            width: 30px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        .sub1 {
+            flex-grow: 3;
+            margin-left: 20px;
+        }
+
+        .sub2 {
+            flex-grow: 7;
+        }
+
+        .butt1,
+        .butt2 {
+            height: 40px;
+            width: 120px;
+            background-color: transparent;
+            color: white;
+            border: 3px solid;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt2 {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .butt1:hover {
+            background-color: white;
+            color: #29a5c9;
+            font-size: 20px;
+        }
+
+        .butt2:hover {
+            opacity: 0.8;
+        }
+
+        li:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .sub3,
+        .sub4 {
+            width: 50%;
+            height: 100%;
+        }
+
+        .sub3,
+        .sub4 {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heading1,
+        .heading2 {
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: 2px 2px 2px black;
+        }
+
+        .heading2 {
+            font-size: 35px;
+            text-shadow: 2px;
+            word-spacing: 6px;
+            margin-left: 20px;
+        }
+
+        .image2 {
+            width: 600px;
+            height: 450px;
+            margin-top: 50px;
+        }
+
+        .image3 {
+            width: 300px;
+            height: 500px;
+            position: absolute;
+            top: 15%;
+        }
+
+        .butt3 {
+            width: 150px;
+            height: 60px;
+            border-radius: 30px;
+        }
+
+        input[type=email],
+        input[type=password],
+        input[type=number],
+        input[type=date],
+        input[type=text],
+        textarea {
+            font-size: x-large;
+        }
+
+        textarea,
+        input[type=date],
+        select {
+            font-size: large;
+            width: 290px;
+            background-color: white;
+        }
+
+        label {
+            font-size: large;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('companynav.ejs'); %>
+    </div>
+    <div class="section">
+        <div class="sub3">
+            <h1 class="heading1">Edit Job</h1>
+            <form action="/insert" method="post">
+
+                <input type="hidden" name="userId" value="<%= uid %>" id="userId" required>
+
+                <input type="hidden" name="status" value="on" id="userId" required>
+                
+                <input type="hidden" name="hired" value="0" id="userId" required>
+
+                <label for="jobRole">Job Role:</label><br>
+                <input type="text" name="jobRole" id="jobRole" required><br><br>
+
+                <label for="company">Company:</label><br>
+                <input type="text" name="company" id="company" required><br><br>
+
+                <label for="jobType">Job Type:</label><br>
+                <select name="jobType" id="jobType">
+                    <option value=""> </option>
+                    <option value="fulltime"> Full Time </option>
+                    <option value="parttime"> Part Time </option>
+                </select> <br><br>
+
+                <label for="jobaAddress">Job Address :</label><br>
+                <textarea name="jobAddress" id="jobAddress" required></textarea><br><br>
+
+                <label for="vacancy">Vacancy:</label><br>
+                <input type="text" name="vacancy" id="vacancy" required><br><br>
+
+                <label for="category">Category:</label><br>
+                <select name="category" id="category">
+                    <option value=""> </option>
+                    <option value="office"> Work From Office </option>
+                    <option value="home"> Work From Home </option>
+                </select> <br><br>
+
+                <label for="salary">Salary:</label><br>
+                <input type="text" name="salary" id="salary" required><br><br>
+
+                <label for="jobTiming">Job Timing:</label><br>
+                <input type="text" name="jobTiming" id="jobTiming" required><br><br>
+
+                <label for="description">Description:</label><br>
+                <textarea name="description" id="description" required></textarea><br><br>
+
+                <label for="jobCriteria">Job Criteria:</label><br>
+                <textarea name="jobCriteria" id="jobCriteria" required></textarea><br><br>
+
+                <label for="endDate">Last Application Date:</label><br>
+                <input type="date" name="endDate" id="endDate" required><br><br>
+
+                <label for="startdate">Job Start Date:</label><br>
+                <input type="date" name="startdate" id="startdate" required><br><br>
+
+
+                <input class="butt1" type="submit" value="POST JOB">
+            </form>
+        </div>
+        <div class="sub4">
+            <h2 class="heading2"> Make Changes in your Job Post as per your Requirements !</h2>
+            <img class="image2" src="<%= data[0].logo %>" alt="Image">
+        </div>
+    </div>
+</body>
+
+</html>

@@ -17,6 +17,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use('/uploads', express.static('images'));
 app.use(express.static('images'));
+app.use(express.static('resumes'));
 app.set('view engine', 'ejs');
 app.set('views', __dirname);
 app.use(express.json());
@@ -112,6 +113,7 @@ app.get('/newLogin', (req, res) => {
   res.setHeader('Expires', '0');
   res.render('login', { msg: 'Registration Successfull ! Login to Your Account' });
 });
+
 app.get('/profile', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store');
   res.setHeader('Pragma', 'no-cache');
@@ -129,6 +131,7 @@ app.get('/profile', async (req, res) => {
     console.log('failed');
   }
 });
+
 // Function to authenticate a user
 async function authenticateUser(email, password) {
   const connection = await pool.getConnection();
@@ -164,6 +167,9 @@ app.post('/auth', async (req, res) => {
       }
       else if (usertype == "admin") {
         res.redirect('/admin');
+      }
+      else if (usertype == "company") {
+        res.redirect('/company');
       }
     } else {
       // Authentication failed
@@ -260,17 +266,18 @@ app.post('/update', img_upload.single('image'), async (req, res) => {
     const uid = req.session.uid;
     const { up_name, up_email, up_mobile, up_address, up_skills, up_achievements, up_qualification, up_hobbies, up_certifications } = req.body;
     const [result] = await connection.execute(
-      'UPDATE users SET name = ?, mobile = ?, email = ? , address = ? WHERE userId = ?',
+      'UPDATE users SET name=?, mobile=?, email=? , address=? WHERE userId = ?',
       [up_name, up_mobile, up_email, up_address, uid]
     );
-    if (up_image != null) {
+    if (req.file != null) {
       const [result2] = await connection.execute(
-        'UPDATE jobSeeker SET image=?, qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
+        'UPDATE jobSeeker SET image=?, qualification=?, achievements=?, certifications=?, hobbies=?, skills=? WHERE userId=?',
         [up_image, up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
       );
-    } if (up_image == null) {
+      console.log('Image uploaded successfully !');
+    } if (req.file == null) {
       const [result2] = await connection.execute(
-        'UPDATE jobSeeker SET qualification = ?, achievements = ?, certifications = ?, hobbies = ?, skills = ? WHERE userId = ?',
+        'UPDATE jobSeeker SET qualification=?, achievements=?, certifications=?, hobbies=?, skills=? WHERE userId=?',
         [up_qualification, up_achievements, up_certifications, up_hobbies, up_skills, uid]
       );
     }
@@ -279,7 +286,6 @@ app.post('/update', img_upload.single('image'), async (req, res) => {
       req.session.username = up_name;
       res.send("<script>alert('Profile Updated Successfully!'); window.location.href = '/profile'; </script>");
       console.log('Profile Updated Successfully !');
-      console.log('Image uploaded successfully !');
       console.log('');
     }
     else {
@@ -290,6 +296,7 @@ app.post('/update', img_upload.single('image'), async (req, res) => {
     console.error('Error Updating:', error);
   }
 });
+
 // Gmail SMTP configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -449,8 +456,10 @@ app.post('/edited', async (req, res) => {
 });
 
 // Post Job
-app.get('/post', (req, res) => {
-  res.render('post', { uid: req.session.uid });
+app.get('/post', async (req, res) => {
+  const connection = await pool.getConnection();
+  const [data] = await connection.execute('SELECT * FROM `company` join users on users.userId = company.userId WHERE company.userId = ?', [req.session.uid]);
+  res.render('post', { data, uid: req.session.uid });
 });
 
 // Viwe all Jobs 
@@ -576,6 +585,19 @@ app.get('/newCompany', (req, res) => {
   res.render('newCompany', {});
 });
 
+app.get('/app', async (req, res) => {
+  var userId = req.query.id;
+  var a = req.query.a;
+  const connection = await pool.getConnection();
+  const [resumeName] = await connection.execute('SELECT * FROM `applications` join jobseeker on jobseeker.userId = applications.userId WHERE applications.appId = ?', [a]);
+  const [data] = await connection.execute('SELECT * FROM `jobSeeker` join users on users.userId = jobSeeker.userId WHERE jobSeeker.userId = ?', [userId]);
+  const text = 'Your Application has been Monitored. Wait for the Response';
+  var toMail = data[0].email;
+  emailNotification(text, toMail);
+  // console.log(resumeName);
+  res.render('app', { resumeName });
+});
+
 // Handle the form submission
 app.post('/newCompany', img_upload.single('logo'), async (req, res) => {
   try {
@@ -613,10 +635,170 @@ app.post('/newCompany', img_upload.single('logo'), async (req, res) => {
 
     console.log('New Company added successfully');
     res.send("<script>alert('Company Registered Successfully!'); window.location.href = '/login'; </script>");
-    
+
   } catch (error) {
     console.log('Error inserting company data:', error);
   }
+});
+
+// View Job Applications
+app.get('/apps', async (req, res) => {
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var uid = req.session.uid;
+    const connection = await pool.getConnection();
+    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = 1 and (appStatus = 'pending' or appStatus  = 'monitored');");
+    res.render('apps', { apps: rows });
+  }
+});
+
+// resume pdf upload
+var up_pdf = "";
+const pdf_storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'resumes/'); // The folder where uploaded images will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Use the original filename
+    up_pdf = file.originalname;
+  },
+});
+
+const pdf_upload = multer({ storage: pdf_storage });
+
+app.get('/newResume', (req, res) => {
+  res.render('newResume', {});
+});
+
+app.post('/newResume', (req, res) => {
+  res.render('newResume', {});
+});
+
+app.post('/resume', pdf_upload.single('resume'), async (req, res) => {
+  var uid = req.session.uid;
+  var resume = req.file.originalname;
+  // console.log(resume);
+  // console.log(userId);
+  const connection = await pool.getConnection();
+  await connection.execute('UPDATE jobseeker SET resume=? where userId = ?', [resume, uid]);
+  console.log('Resume Uploaded Successfully');
+  res.send("<script>alert('Resume Uploaded Successfully!'); window.location.href = '/profile'; </script>");
+});
+
+app.get('/company', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  try {
+    if (req.session && req.session.usertype) {
+      var usertype = req.session.usertype;
+      var userId = req.session.uid;
+      if (usertype == "company") {
+        const connection = await pool.getConnection();
+        const [data] = await connection.execute('SELECT * FROM `company` join users on users.userId = company.userId WHERE company.userId = ?', [userId]);
+        const coId = data[0].coId;
+        req.session.coId = coId; // Store user data in the session
+        res.render('company', { data });
+      }
+    }
+    else {
+      res.render('login', { msg: 'Login to Your Account' });
+    }
+  } catch (error) {
+    console.error('Error querying MySQL:', error);
+  }
+});
+
+app.get('/jobsList', async (req, res) => {
+  var coId = req.session.coId;
+  const connection = await pool.getConnection();
+  const [rows] = await connection.execute("SELECT * FROM jobs WHERE coId = ?;", [coId]);
+  res.render('jobsList', { jobs: rows });
+});
+
+// Function to send an email using Nodemailer
+async function emailNotification(text, toMail) {
+  try {
+    // Create a Nodemailer transporter using SMTP
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '20bmiit116@gmail.com', // Your Gmail email address
+        pass: 'lszz pmyd owxc cdsp', // Your Gmail password or an App Password (recommended)
+      },
+    });
+
+    // Email options
+    let mailOptions = {
+      to: toMail, // Recipient email address
+      subject: 'Update Notification',
+      text: text, // Text input parameter
+    };
+
+    // Send email
+    let info = await transporter.sendMail(mailOptions);
+    console.log('Update Notification Send');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
+app.get('/acc', async (req, res) => {
+  var id = req.query.id;
+  var a = req.query.a;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const text = 'Your Application is Selected for Next Round';
+  const [rows] = await connection.execute('SELECT * FROM users WHERE userId = ?', [id]);
+  // console.log(rows);
+  var toMail = rows[0].email;
+  emailNotification(text, toMail);
+  connection.execute('update applications set appStatus = "accepted" where appId = ?', [a]);
+  console.log("Accepted Application = ", a);
+  res.send('<script> alert("Application Accepted!"); window.document.location.href="apps";</script>');
+});
+
+app.get('/rej', async (req, res) => {
+  var id = req.query.id;
+  var a = req.query.a;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const text = 'Sorry, Your Application was Rejected. Better Luck Next Time :)';
+  const [rows] = await connection.execute('SELECT * FROM users WHERE userId = ?', [id]);
+  // console.log(rows);
+  var toMail = rows[0].email;
+  emailNotification(text, toMail);
+  connection.execute('update applications set appStatus = "rejected" where appId = ?', [a]);
+  console.log("Rejected Application = ", a);
+  res.send('<script> alert("Application Rejected!"); window.document.location.href="apps";</script>');
+});
+
+app.get('/jsProfile', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+    var usertype = req.session.usertype;
+    var userId = req.query.id;
+    var a = req.query.a;
+    const connection = await pool.getConnection();
+    connection.execute('update applications set appStatus = "monitored" where appId = ?', [a]);
+    const [data] = await connection.execute('SELECT * FROM `jobSeeker` join users on users.userId = jobSeeker.userId WHERE jobSeeker.userId = ?', [userId]);
+    // console.log(data);
+    const text = 'Your Application has been Monitored. Wait for the Response';
+    var toMail = data[0].email;
+    emailNotification(text, toMail);
+    res.render('jsProfile', { data });
+  } else {
+    res.redirect('/login');
+    console.log('failed to load Job Seeker Proile');
+  }
+});
+
+app.get('/manageJob', (req, res) => {
+  res.render('manageJob', {});
 });
 
 // run application 
