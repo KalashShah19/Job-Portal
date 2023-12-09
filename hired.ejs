@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title> Manage Applications </title>
+    <title> Hired Candidates </title>
     <style>
         body {
             background-color: #29a5c9;
@@ -234,54 +234,55 @@
 <body>
     <div class="container">
         <%- include('companynav.ejs') %>
-              
-    <div class="section">
-        <div class="sub3">
-            <h1 class="heading2"> Applications </h1>
-        </div>
-        <div class="sub4">
-            <h2 class="heading2">Find Your Potential Candidates ! </h2>
-        </div>
-    </div>
+
+            <div class="section">
+                <div class="sub3">
+                    <h1 class="heading2"> Hired Candidates </h1>
+                </div>
+                <div class="sub4">
+                    <h2 class="heading2"> Checkout Your new Employees ! </h2>
+                </div>
+            </div>
             <table>
-                <tr>
-                    <th> Job Role </th>
-                    <th> Name </th>
-                    <th> Email </th>
-                    <th> Mobile <br> Number </th>
-                    <th> Address </th>
-                    <th colspan="2"> View </th>
-                    <th colspan="2"> Actions </th>
-                </tr>
-                <% apps.forEach((data)=> { %>
+                <% if (apps && apps.length> 0) { %>
                     <tr>
-                        <td>
-                            <%= data.jobRole %>
-                        </td>
-                        <td>
-                            <%= data.name %>
-                        </td>
-                        <td>
-                            <%= data.email %>
-                        </td>
-                        <td>
-                            <%= data.mobile %>
-                        </td>
-                        <td>
-                            <%= data.address %>
-                        </td>
-                        <td> <a href="app?id=<%= data.uid %>&a=<%= data.id %>" target="_blank"> Resume </a> </td>
-
-                        <td> <a href="jsProfile?id=<%= data.uid %>&a=<%= data.id %>" target="_blank"> Profile </a> </td>
-
-                        <td style="background-color: white;"> <a style="
-                    filter: invert(30%) sepia(93%) saturate(1005%) hue-rotate(87deg) brightness(92%) contrast(109%);"
-                                href="acc?id=<%= data.uid %>&a=<%= data.id %>"> <img width="20%" src="tick.png"> </a> </td>
-                        <td style="background-color: white;"> <a style="color:red" href="rej?id=<%= data.uid %>&a=<%= data.id %>"> X </a>
-                        </td>
+                        <th> Job Role </th>
+                        <th> Name </th>
+                        <th> Email </th>
+                        <th> Mobile <br> Number </th>
+                        <th> Address </th>
+                        <th colspan="2"> View </th>
                     </tr>
-                    <% }); %>
+                    <% apps.forEach((data)=> { %>
+                        <tr>
+                            <td>
+                                <%= data.jobRole %>
+                            </td>
+                            <td>
+                                <%= data.name %>
+                            </td>
+                            <td>
+                                <%= data.email %>
+                            </td>
+                            <td>
+                                <%= data.mobile %>
+                            </td>
+                            <td>
+                                <%= data.address %>
+                            </td>
+                            <td> <a href="app?id=<%= data.uid %>&a=<%= data.id %>" target="_blank"> Resume </a> </td>
+
+                            <td> <a href="jsProfile?id=<%= data.uid %>&a=<%= data.id %>" target="_blank"> Profile </a>
+                            </td>
+
+                        </tr>
+                        <% }); %>
             </table>
+            <% } else { %>
+                <center>
+                    <h1 style="color:white"> No Hired Candidates </h1>
+                </center>
+                <% } %>
     </div>
 </body>
 

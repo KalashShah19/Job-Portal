@@ -369,6 +369,7 @@ app.post('/checkotp', async (req, res) => {
     res.send("<script> alert('Wrong OTP !'); window.document.location.href='check';</script>");
   }
 });
+
 // Create a route to fetch and display user data
 app.get('/admin', async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store');
@@ -381,7 +382,7 @@ app.get('/admin', async (req, res) => {
 
         const connection = await pool.getConnection();
 
-        const [rows] = await connection.execute('SELECT * FROM users');
+        const [rows] = await connection.execute('SELECT * FROM users where usertype = "client" or usertype = "admin";');
 
         res.render('admin', { users: rows });
       }
@@ -397,6 +398,7 @@ app.get('/admin', async (req, res) => {
     console.error('Error fetching user data:', error);
   }
 });
+
 app.get('/delete', async (req, res) => {
   var id = req.query.id;
   const connection = await pool.getConnection();
@@ -492,7 +494,6 @@ app.post('/insert', async (req, res) => {
   const {
     jobRole,
     company,
-    userId,
     jobType,
     jobAddress,
     vacancy,
@@ -514,14 +515,13 @@ app.post('/insert', async (req, res) => {
 
     // Insert data into the "jobs" table
     const insertQuery = `
-      INSERT INTO jobs (jobRole, company, userId, jobType, jobAddress, vacancy, category, salary, jobTiming, description, skills, status, startdate, endDate, hired)
+      INSERT INTO jobs (jobRole, coId, jobType, jobAddress, vacancy, category, salary, jobTiming, description, skills, status, startdate, endDate, hired)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await connection.execute(insertQuery, [
       jobRole,
       company,
-      userId,
       jobType,
       jobAddress,
       vacancy,
@@ -643,12 +643,16 @@ app.post('/newCompany', img_upload.single('logo'), async (req, res) => {
 
 // View Job Applications
 app.get('/apps', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   if (req.session.uid == null) {
     res.redirect('/login');
   } else {
     var uid = req.session.uid;
+    var coId = req.session.coId;
     const connection = await pool.getConnection();
-    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = 1 and (appStatus = 'pending' or appStatus  = 'monitored');");
+    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = ? and (appStatus = 'pending' or appStatus  = 'monitored');", [coId]);
     res.render('apps', { apps: rows });
   }
 });
@@ -711,10 +715,19 @@ app.get('/company', async (req, res) => {
 });
 
 app.get('/jobsList', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
   var coId = req.session.coId;
   const connection = await pool.getConnection();
   const [rows] = await connection.execute("SELECT * FROM jobs WHERE coId = ?;", [coId]);
   res.render('jobsList', { jobs: rows });
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
 });
 
 // Function to send an email using Nodemailer
@@ -745,11 +758,16 @@ async function emailNotification(text, toMail) {
 }
 
 app.get('/acc', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
   var id = req.query.id;
   var a = req.query.a;
   const connection = await pool.getConnection();
   // console.log(id);
-  const text = 'Your Application is Selected for Next Round';
+  const text = 'Congratulations ! Your Application is Selected for Interview. Date and Timings will be Informed to You. Good Luck';
   const [rows] = await connection.execute('SELECT * FROM users WHERE userId = ?', [id]);
   // console.log(rows);
   var toMail = rows[0].email;
@@ -757,9 +775,18 @@ app.get('/acc', async (req, res) => {
   connection.execute('update applications set appStatus = "accepted" where appId = ?', [a]);
   console.log("Accepted Application = ", a);
   res.send('<script> alert("Application Accepted!"); window.document.location.href="apps";</script>');
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
 });
 
 app.get('/rej', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
   var id = req.query.id;
   var a = req.query.a;
   const connection = await pool.getConnection();
@@ -772,6 +799,34 @@ app.get('/rej', async (req, res) => {
   connection.execute('update applications set appStatus = "rejected" where appId = ?', [a]);
   console.log("Rejected Application = ", a);
   res.send('<script> alert("Application Rejected!"); window.document.location.href="apps";</script>');
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
+});
+
+app.get('/pass', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+  var id = req.query.id;
+  var a = req.query.a;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const text = 'Congratulations ! Your Interview has been Passed and You are Hired. Job Details will be discussed later. Have a Nice One.';
+  const [rows] = await connection.execute('SELECT * FROM users WHERE userId = ?', [id]);
+  // console.log(rows);
+  var toMail = rows[0].email;
+  emailNotification(text, toMail);
+  connection.execute('update applications set appStatus = "hired" where appId = ?', [a]);
+  console.log("Hired Application = ", a);
+  res.send('<script> alert("Applicant Hired!"); window.document.location.href="apps";</script>');
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
 });
 
 app.get('/jsProfile', async (req, res) => {
@@ -797,8 +852,176 @@ app.get('/jsProfile', async (req, res) => {
   }
 });
 
-app.get('/manageJob', (req, res) => {
-  res.render('manageJob', {});
+app.get('/editJob', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+  var id = req.query.id;
+  const connection = await pool.getConnection();
+  const [data] = await connection.execute('SELECT * FROM `jobs` join company on company.coId = jobs.coId join users on users.userId = company.userId WHERE jobId = ?', [id]);
+  // console.log(data);
+  res.render('editJob', { data, id });
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
+});
+
+app.post('/test', (req, res) => {
+  var date = req.body;
+  console.log(date);
+});
+
+app.post('/updateJob', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+  try {
+    const connection = await pool.getConnection();
+    const jobIdToUpdate = req.query.id;
+    console.log(jobIdToUpdate);
+    const {
+      jobRole,
+      jobType,
+      jobAddress,
+      vacancy,
+      category,
+      salary,
+      jobTiming,
+      description,
+      jobCriteria,
+      status,
+      startdate,
+      endDate,
+      hired
+    } = req.body;
+
+    // Perform the database update
+    const [updatedRows] = await connection.execute(
+      `UPDATE jobs
+      SET jobRole = ?, jobType = ?, jobAddress = ?, vacancy = ?,
+      category = ?, salary = ?, jobTiming = ?, description = ?, skills = ?, status = ?,
+      startdate = ?, endDate = ?, hired = ?
+      WHERE jobId = ?`,
+      [
+        jobRole, jobType, jobAddress, vacancy, category, salary,
+        jobTiming, description, jobCriteria, status, startdate, endDate, hired, jobIdToUpdate
+      ]
+    );
+
+   console.log("Job Updated Successfully!");
+   res.send("<script>alert('Job Updated Successfully!'); window.location.href = '/jobsList'; </script>");
+
+  } catch (error) {
+    console.error('Error updating job:', error);
+  }
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
+});
+
+app.get('/viewjob', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // console.log(req.session.uid);
+  if (req.session.uid != null) {
+  var id = req.query.id;
+  const connection = await pool.getConnection();
+  // console.log(id);
+  const [rows] = await connection.execute('SELECT * FROM jobs where jobId =  ?', [id]);
+  res.render('viewJob', { job : rows });
+} else {
+  res.redirect('/login');
+  console.log('failed to load Job Seeker Proile');
+}
+});
+
+// View accepted Applications
+app.get('/accepted', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var uid = req.session.uid;
+    var coId = req.session.coId;
+    const connection = await pool.getConnection();
+    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = ? and appStatus = 'accepted';", [coId]);
+    res.render('accepted', { apps : rows });
+  }
+});
+
+// View hired Applications
+app.get('/hired', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var uid = req.session.uid;
+    var coId = req.session.coId;
+    const connection = await pool.getConnection();
+    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = ? and appStatus = 'hired';", [coId]);
+    res.render('hired', { apps : rows });
+  }
+});
+
+// View rejetced Applications 
+app.get('/rejected', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  if (req.session.uid == null) {
+    res.redirect('/login');
+  } else {
+    var uid = req.session.uid;
+    var coId = req.session.coId;
+    const connection = await pool.getConnection();
+    const [rows] = await connection.execute("SELECT *, app.appId as id, app.userId as uid FROM applications app INNER JOIN jobs job ON app.jobId = job.jobId INNER JOIN users usr ON app.userId = usr.userId INNER JOIN company com ON job.coId = com.coId WHERE com.coId = ? and appStatus = 'rejected';", [coId]);
+    res.render('rejected', { apps : rows });
+  }
+});
+
+// Create a route to fetch and display user data
+app.get('/companies', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  try {
+    if (req.session && req.session.usertype) {
+      var usertype = req.session.usertype;
+      if (usertype == "admin") {
+
+        const connection = await pool.getConnection();
+
+        const [rows] = await connection.execute('SELECT * FROM users where usertype = "company";');
+
+        res.render('companies', { users: rows });
+      }
+      else if (usertype == "client") {
+        res.redirect('/login');
+      }
+    }
+    else {
+      res.render('login', { msg: 'Login to Your Account' });
+    }
+
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+});
+
+app.get('/test', (req, res) => {
+  res.render('test', {});
 });
 
 // run application 

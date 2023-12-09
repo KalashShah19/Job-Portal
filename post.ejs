@@ -194,8 +194,13 @@
         <input type="text" name="jobRole" id="jobRole" required><br><br>
         
         <label for="company">Company:</label><br>
-        <input type="text" name="company" id="company" required><br><br>
-        
+        <select name="company" id="company">
+          <option value=""></option>
+          <% data.forEach(row => { %>
+          <option value="<%= row.coId %>"> <%= row.name %></option>
+          <% }) %>
+        </select> <br><br>
+
         <label for="jobType">Job Type:</label><br>
         <select name="jobType" id="jobType">
           <option value=""> </option>

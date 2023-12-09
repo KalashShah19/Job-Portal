@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> New Job </title>
+  <title> Edit Job </title>
   <style>
     body {
       background-color: #29a5c9;
@@ -178,63 +178,70 @@
 <body>
   <div class="container">
     <%- include('companynav.ejs'); %>
-    </div>
+  </div>
   <div class="section">
     <div class="sub3">
       <h1 class="heading1">New Job</h1>
-      <form action="/insert" method="post">
-        
-        <input type="hidden" name="userId" value="<%= uid %>" id="userId" required>
-        
+      <form action="/updateJob?id=<%= id %>" method="post">
+
         <input type="hidden" name="status" value="on" id="status" required>
-        
-        <input type="hidden" name="hired" value="0" id="hired" required>
-        
+
+        <input type="hidden" name="hired" value="<%= data[0].hired %>" id="hired" required>
+
         <label for="jobRole">Job Role:</label><br>
-        <input type="text" name="jobRole" id="jobRole" required><br><br>
-        
-        <label for="company">Company:</label><br>
-        <input type="text" name="company" id="company" required><br><br>
-        
-        <label for="jobType">Job Type:</label><br>
-        <select name="jobType" id="jobType">
-          <option value=""> </option>
-          <option value="fulltime"> Full Time </option>
-          <option value="parttime"> Part Time </option>
-        </select> <br><br>
-        
-        <label for="jobaAddress">Job Address :</label><br>
-        <textarea name="jobAddress" id="jobAddress" required></textarea><br><br>
+        <input type="text" name="jobRole" value="<%= data[0].jobRole %>" id="jobRole" required><br><br>
 
-        <label for="vacancy">Vacancy:</label><br>
-        <input type="text" name="vacancy" id="vacancy" required><br><br>
+        <% var type=data[0].jobType; %>
+          <label for="jobType">Job Type:</label><br>
+          <select name="jobType" id="jobType">
+            <option value=""> </option>
+            <option value="fulltime" <%=type==="fulltime" ? 'selected' : '' %>> Full Time </option>
+            <option value="parttime" <%=type==="parttime" ? 'selected' : '' %>> Part Time </option>
+          </select> <br><br>
 
-        <label for="category">Category:</label><br>
-        <select name="category" id="category">
-          <option value=""> </option>
-          <option value="office"> Work From Office </option>
-          <option value="home"> Work From Home </option>
-        </select> <br><br>
+          <label for="jobaAddress">Job Address :</label><br>
+          <textarea name="jobAddress" id="jobAddress" required><%= data[0].jobAddress %></textarea><br><br>
 
-        <label for="salary"> Salary : </label><br>
-        <input type="text" name="salary" id="salary" required><br><br>
+          <label for="vacancy">Vacancy:</label><br>
+          <input type="text" name="vacancy" value="<%= data[0].vacancy %>" id="vacancy" required><br><br>
 
-        <label for="jobTiming"> Job Timing : </label><br>
-        <input type="text" name="jobTiming" id="jobTiming" required><br><br>
+          <% var cat=data[0].category; %>
+            <label for="category">Category:</label><br>
+            <select name="category" id="category">
+              <option value=""> </option>
+              <option value="office" <%=cat==="office" ? 'selected' : '' %>> Work From Office </option>
+              <option value="home" <%=cat==="home" ? 'selected' : '' %>> Work From Home </option>
+            </select> <br><br>
 
-        <label for="description"> Description : </label><br>
-        <textarea name="description" id="description" required></textarea><br><br>
+            <label for="salary"> Salary : </label><br>
+            <input type="text" name="salary" id="salary" value="<%= data[0].salary%>" required><br><br>
 
-        <label for="jobCriteria"> Job Criteria : </label><br>
-        <textarea name="jobCriteria" id="jobCriteria" required></textarea><br><br>
+            <label for="jobTiming"> Job Timing : </label><br>
+            <input type="text" name="jobTiming" value="<%= data[0].jobTiming%>" id="jobTiming" required><br><br>
 
-        <label for="endDate"> Last Application Date : </label><br>
-        <input type="date" name="endDate" id="endDate" required><br><br>
+            <label for="description"> Description : </label><br>
+            <textarea name="description" id="description" required><%= data[0].description %></textarea><br><br>
 
-        <label for="startdate"> Job Start Date : </label><br>
-        <input type="date" name="startdate" id="startdate" required><br><br>
+            <label for="jobCriteria"> Job Criteria : </label><br>
+            <textarea name="jobCriteria" id="jobCriteria" required><%= data[0].skills%></textarea><br><br>
 
-        <input class="butt1" type="submit" value="POST JOB">
+            <% var originalEnd=new Date(data[0].endDate); %>
+              <% var end=`${(originalEnd.getFullYear()).toString().padStart(2, "0"
+                )}-${originalEnd.getDate().toString().padStart(2, "0" )}-${(originalEnd.getMonth()
+                +1).toString().padStart(2, "0" )}`; %>
+
+                <label for="endDate"> Last Application Date : </label><br>
+                <input type="date" name="endDate" value="<%= end %>" id="endDate" required><br><br>
+
+                <% var originalStart=new Date(data[0].startdate); %>
+                  <% var start=`${(originalStart.getFullYear()).toString().padStart(2, "0"
+                    )}-${originalStart.getDate().toString().padStart(2, "0" )}-${(originalStart.getMonth()
+                    +1).toString().padStart(2, "0" )}`; %>
+
+                    <label for="startdate"> Job Start Date : </label><br>
+                    <input type="date" name="startdate" value="<%= start %>" id="startdate" required><br><br>
+
+                    <input class="butt1" type="submit" value="SAVE JOB">
       </form>
     </div>
     <div class="sub4">
